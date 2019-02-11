@@ -1,0 +1,26 @@
+module MODULE_NAME (
+    input  logic clk,
+    input  logic rstn,
+    input  logic valid,
+    input  logic flush,
+    input  logic [INPUT_ACT_NBITS-1:0] input_act,
+    output logic [OUTPUT_ACT_NBITS-1:0] output_act,
+    output logic ready
+);
+
+logic valid_ff;
+logic flush_ff;
+logic [INPUT_ACT_NBITS-1:0] input_act_ff;
+always_ff @(posedge clk or negedge rstn) begin
+    if (!rstn) begin
+        valid_ff       <= '0;
+        flush_ff       <= '0;
+        input_act_ff   <= '0;
+    end
+    else begin
+        valid_ff       <= valid;
+        flush_ff       <= flush;
+        input_act_ff   <= input_act;
+    end
+end
+

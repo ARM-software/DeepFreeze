@@ -1,0 +1,11 @@
+always_ff @(posedge clk or negedge rstn) begin
+    if (!rstn) begin
+        output_act <= '0;
+        ready      <= '0;
+        end
+    else begin
+        output_act <= OUTPUT_ACT_NAME;
+        ready      <= OUTPUT_VALID_NAME;
+    end
+end
+endmodule

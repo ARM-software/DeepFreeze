@@ -1,0 +1,10 @@
+{
+    "fc1": "fully_connected/Relu:0",
+    "fc2": "fully_connected_1/Relu:0",
+    "fc3": "fully_connected_2/BiasAdd:0",
+    "flat": "Flatten/flatten/Reshape:0",
+    "conv2": "Conv_1/Relu:0",
+    "conv1": "Conv/Relu:0",
+    "pool2": "MaxPool2D_1/MaxPool:0",
+    "pool1": "MaxPool2D/MaxPool:0"
+}

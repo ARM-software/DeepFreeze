@@ -1,0 +1,10 @@
+logic [OUTPUT_ACT_NBITS-1:0] OUTPUT_ACT_NAME;
+OP_TYPE #(
+    .NBITS (ACT_NBITS),
+    .NFMAPS (NUM_INPUT_FMAPS),
+    .KERSIZE (KERNEL_SIZE)
+) MODULE_NAME_instance (
+    .input_act (INPUT_ACT_NAME),
+    .output_act (OUTPUT_ACT_NAME)
+);
+
