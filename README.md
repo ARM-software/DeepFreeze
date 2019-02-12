@@ -142,7 +142,7 @@ Patrick Hansen, Arm ML Research Lab, Boston, MA
 
 Shreyas Kolala Venkataramanaiah, Arizona State University
 
-Paul Whatmough, Arm ML Research Lab, Boston, MA
+[Paul Whatmough](https://www.linkedin.com/in/paul-whatmough-2062729/), Arm Research, Boston, MA
 
 ### License
 
