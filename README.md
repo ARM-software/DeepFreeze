@@ -139,7 +139,9 @@ Future work will focus on further improving the generalization of fixed hardware
 ### Authors
 
 Patrick Hansen, Arm ML Research Lab, Boston, MA
+
 Shreyas Kolala Venkataramanaiah, Arizona State University
+
 Paul Whatmough, Arm ML Research Lab, Boston, MA
 
 ### License
