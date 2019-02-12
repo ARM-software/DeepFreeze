@@ -135,3 +135,13 @@ Future work will focus on further improving the generalization of fixed hardware
  * Implement `flatten.sv` to enable fully-fixed image classification networks by flattening an image from 2D layers to dense layers.
  * Implement batch normalization layers
  * Improve sram logic such that it begins consuming activations once `ker_size` of data is written to the sram.
+ 
+### Authors
+
+Patrick Hansen, Arm ML Research Lab, Boston, MA
+Shreyas Kolala Venkataramanaiah, Arizona State University
+Paul Whatmough, Arm ML Research Lab, Boston, MA
+
+### License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
