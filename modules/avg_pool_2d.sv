@@ -2,24 +2,38 @@ module avg_pool_2d
 #(
     parameter NBITS = 32,
     parameter NFMAPS = 32,
-    parameter KER_SIZE_X = 2,
-    parameter KER_SIZE_Y = 2
+    parameter KER_SIZE = 2
 )
 (
-    input logic [NBITS*KER_SIZE_X*KER_SIZE_Y*NFMAPS-1:0] input_act,
-    output logic [NBITS*NFMAPS-1:0] output_act
+    input logic clk,
+    input logic rstn,
+    input logic valid,
+    input logic [NBITS*KER_SIZE*KER_SIZE*NFMAPS-1:0] input_act,
+    output logic [NBITS*NFMAPS-1:0] output_act,
+    output logic ready
 );
+
+logic [NBITS*KER_SIZE*KER_SIZE*NFMAPS-1:0] input_act_ff;
+always_ff @(posedge clk or negedge rstn) begin
+    if (rstn == 0) begin
+        input_act_ff <= '0;
+        ready <= '0;
+    end
+    else begin
+        input_act_ff <= input_act;
+        ready <= valid;
+    end
+end
 
 genvar i;
 generate
     for (i = 0; i < NFMAPS; i++) begin
         avg_pool_2d_slice #(
-            .NBITS(NBITS),
-            .KER_SIZE_X(KER_SIZE_X),
-            .KER_SIZE_Y(KER_SIZE_Y)
+            .NBITS (NBITS),
+            .KER_SIZE (KER_SIZE)
         ) avg_pool_2d_slice_inst (
-            .input_act(input_act[(i+1)*NBITS*KER_SIZE_X*KER_SIZE_Y-1:(i*NBITS*KER_SIZE_X*KER_SIZE_Y)]),
-            .output_act(output_act[(i+1)*NBITS-1:(i*NBITS)])
+            .input_act (input_act_ff[(i+1)*NBITS*KER_SIZE*KER_SIZE-1:(i*NBITS*KER_SIZE*KER_SIZE)]),
+            .output_act (output_act[(i+1)*NBITS-1:(i*NBITS)])
         );
     end
 endgenerate
@@ -31,11 +45,10 @@ endmodule
 module avg_pool_2d_slice
 #(
     parameter NBITS = 32,
-    parameter KER_SIZE_X = 2,
-    parameter KER_SIZE_Y = 2
+    parameter KER_SIZE = 2
 )
 (
-    input logic [NBITS*KER_SIZE_X*KER_SIZE_Y-1:0] input_act,
+    input logic [NBITS*KER_SIZE*KER_SIZE-1:0] input_act,
     output logic [NBITS-1:0] output_act
 );
 

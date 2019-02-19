@@ -8,6 +8,7 @@ Project: FixyNN
 import os
 
 TEMPLATE_DIRECTORY = os.path.join(os.path.dirname(__file__), "templates/")
+
 LAYER_MODULE_HEADER_TEMPLATE      = os.path.join(TEMPLATE_DIRECTORY, "layer_module_header.txt")
 TRAINABLE_LAYER_INSTANCE_TEMPLATE = os.path.join(TEMPLATE_DIRECTORY, "trainable_layer_instance.txt")
 POOLING_LAYER_INSTANCE_TEMPLATE   = os.path.join(TEMPLATE_DIRECTORY, "pooling_layer_instance.txt")

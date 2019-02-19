@@ -4,7 +4,11 @@ OP_TYPE #(
     .NFMAPS (NUM_INPUT_FMAPS),
     .KERSIZE (KERNEL_SIZE)
 ) MODULE_NAME_instance (
+    .clk (clk),
+    .rstn (rstn),
+    .valid (INPUT_VALID_NAME),
     .input_act (INPUT_ACT_NAME),
-    .output_act (OUTPUT_ACT_NAME)
+    .output_act (OUTPUT_ACT_NAME),
+    .ready (OUTPUT_VALID_NAME)
 );
 

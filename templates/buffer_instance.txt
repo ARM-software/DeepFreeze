@@ -1,19 +1,19 @@
 logic OUTPUT_VALID_NAME;
 logic [OUTPUT_ACT_NBITS-1:0] OUTPUT_ACT_NAME;
 buffer_main #(
-    .KER_SIZE(KERNEL_SIZE),
-    .BITWIDTH(ACT_NBITS),
-    .INPUT_FMAPS(NUM_INPUT_FMAPS),
-    .STRIDE(STRIDES),
-    .NW(NUM_WORDS),
-    .AW(ADDRESS_WIDTH)
+    .KER_SIZE (KERNEL_SIZE),
+    .BITWIDTH (ACT_NBITS),
+    .NFMAPS (NUM_INPUT_FMAPS),
+    .STRIDE (STRIDES),
+    .NW (NUM_WORDS),
+    .AW (ADDRESS_WIDTH)
 ) MODULE_NAME_buf_inst (
-    .clk(clk),
-    .rstn(rstn),
-    .valid(INPUT_VALID_NAME),
-    .flush(flush_ff),
-    .input_act(INPUT_ACT_NAME),
-    .output_act(OUTPUT_ACT_NAME),
-    .ready(OUTPUT_VALID_NAME)
+    .clk (clk),
+    .rstn (rstn),
+    .valid (INPUT_VALID_NAME),
+    .flush (flush_ff),
+    .D (INPUT_ACT_NAME),
+    .Q (OUTPUT_ACT_NAME),
+    .ready (OUTPUT_VALID_NAME)
 );
 

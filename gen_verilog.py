@@ -319,7 +319,7 @@ class VerilogGenerator():
 
         if layer.op_type in LAYER_TYPES_TRAINABLE:
             lines = read_and_fill_template(TRAINABLE_LAYER_INSTANCE_TEMPLATE, variable_map)
-        elif layer.op_type in [MAX_POOL_2D, AVG_POOL_2D]:
+        elif layer.op_type in LAYER_TYPES_POOL:
             variable_map += [
                 ("OP_TYPE", layer.op_type),
                 ("ACT_NBITS", self.a_nbits),

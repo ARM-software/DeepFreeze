@@ -1,9 +1,9 @@
 module MODULE_NAME (
-    input  logic clk,
-    input  logic rstn,
-    input  logic valid,
-    input  logic flush,
-    input  logic [INPUT_ACT_NBITS-1:0] input_act,
+    input logic clk,
+    input logic rstn,
+    input logic valid,
+    input logic flush,
+    input logic [INPUT_ACT_NBITS-1:0] input_act,
     output logic [OUTPUT_ACT_NBITS-1:0] output_act,
     output logic ready
 );

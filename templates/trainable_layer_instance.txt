@@ -1,3 +1,4 @@
+logic OUTPUT_VALID_NAME;
 logic [OUTPUT_ACT_NBITS-1:0] OUTPUT_ACT_NAME;
 MODULE_NAME MODULE_NAME_inst (
     .clk (clk),
@@ -5,6 +6,6 @@ MODULE_NAME MODULE_NAME_inst (
     .valid (INPUT_VALID_NAME),
     .input_act (INPUT_ACT_NAME),
     .output_act (OUTPUT_ACT_NAME),
-    .ready (OUTPUT_VALID_NAME),
+    .ready (OUTPUT_VALID_NAME)
 );
 

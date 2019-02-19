@@ -1,4 +1,4 @@
-MODEL_NAME=lenet
+MODEL_NAME="lenet"
 META_FILEPATH="${PWD}/examples/lenet/lenet.ckpt.meta"
 CHECKPOINT_FILEPATH="${PWD}/examples/lenet/lenet.ckpt"
 ENDPOINTS_FILEPATH="${PWD}/examples/lenet/endpoints.json"
