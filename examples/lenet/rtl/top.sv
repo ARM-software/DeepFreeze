@@ -2,20 +2,25 @@ module top (
     input logic clk,
     input logic rstn,
     input logic valid,
-    input logic [400-1:0] input_act,
+    input logic flush,
+    input logic [16-1:0] input_act,
     output logic [256-1:0] output_act,
     output logic ready
 );
 
-logic [400-1:0] input_act_ff;
+logic valid_ff;
+logic flush_ff;
+logic [16-1:0] input_act_ff;
 always_ff @(posedge clk or negedge rstn) begin
-    if (rstn == 0) begin
-        input_act_ff <= '0;
-        ready <= '0;
+    if (!rstn) begin
+        valid_ff       <= '0;
+        flush_ff       <= '0;
+        input_act_ff   <= '0;
     end
     else begin
-        input_act_ff <= input_act;
-        ready <= valid;
+        valid_ff       <= valid;
+        flush_ff       <= flush;
+        input_act_ff   <= input_act;
     end
 end
 
@@ -68,11 +73,12 @@ buffer_main #(
     .ready (pool1_buf_valid)
 );
 
+logic pool1_valid;
 logic [96-1:0] pool1_act;
 max_pool_2d #(
     .NBITS (16),
     .NFMAPS (6),
-    .KERSIZE (2)
+    .KER_SIZE (2)
 ) pool1_instance (
     .clk (clk),
     .rstn (rstn),
@@ -131,11 +137,12 @@ buffer_main #(
     .ready (pool2_buf_valid)
 );
 
+logic pool2_valid;
 logic [256-1:0] pool2_act;
 max_pool_2d #(
     .NBITS (16),
     .NFMAPS (16),
-    .KERSIZE (2)
+    .KER_SIZE (2)
 ) pool2_instance (
     .clk (clk),
     .rstn (rstn),

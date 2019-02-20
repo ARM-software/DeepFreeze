@@ -252,7 +252,7 @@ class VerilogGenerator():
         if input_layer.op_type in LAYER_TYPES_2D:
             num_input_fmaps = input_layer.input_shapes[0][-1]
             num_inputs_per_fmap = np.prod(input_layer.kernel_size)
-            num_inputs = num_input_fmaps * num_inputs_per_fmap
+            num_inputs = num_input_fmaps
         else:
             num_inputs = input_layer.input_shapes[0][-1]
         num_outputs = output_layer.output_shape[-1]
@@ -263,7 +263,7 @@ class VerilogGenerator():
             ("INPUT_ACT_NBITS", num_inputs * self.a_nbits),
             ("OUTPUT_ACT_NBITS", num_outputs * self.a_nbits),
         ]
-        lines = read_and_fill_template(LAYER_MODULE_HEADER_TEMPLATE, variable_map)
+        lines = read_and_fill_template(MAIN_MODULE_HEADER_TEMPLATE, variable_map)
         with open(self.main_module_filepath, "w") as f:
             f.writelines(lines)        
         self.main_act_signal_name = "input_act_ff"
