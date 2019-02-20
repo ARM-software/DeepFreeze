@@ -1,4 +1,4 @@
-module lenet (
+module top (
     input logic clk,
     input logic rstn,
     input logic valid,

@@ -1,0 +1,9 @@
+/home/pathan01/fixy_nn/DeepFreeze/simulation/../examples/lenet/rtl/buffer_main.sv
+/home/pathan01/fixy_nn/DeepFreeze/simulation/../examples/lenet/rtl/conv1.sv
+/home/pathan01/fixy_nn/DeepFreeze/simulation/../examples/lenet/rtl/conv2.sv
+/home/pathan01/fixy_nn/DeepFreeze/simulation/../examples/lenet/rtl/line_buffer_array.sv
+/home/pathan01/fixy_nn/DeepFreeze/simulation/../examples/lenet/rtl/line_buffer_controller.sv
+/home/pathan01/fixy_nn/DeepFreeze/simulation/../examples/lenet/rtl/max_pool_2d.sv
+/home/pathan01/fixy_nn/DeepFreeze/simulation/../examples/lenet/rtl/sram_array.sv
+/home/pathan01/fixy_nn/DeepFreeze/simulation/../examples/lenet/rtl/sram_controller.sv
+/home/pathan01/fixy_nn/DeepFreeze/simulation/../examples/lenet/rtl/top.sv

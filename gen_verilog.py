@@ -258,7 +258,8 @@ class VerilogGenerator():
         num_outputs = output_layer.output_shape[-1]
 
         variable_map = [
-            ("MODULE_NAME", self.name),
+            #("MODULE_NAME", self.name),
+            ("MODULE_NAME", "top"),
             ("INPUT_ACT_NBITS", num_inputs * self.a_nbits),
             ("OUTPUT_ACT_NBITS", num_outputs * self.a_nbits),
         ]
