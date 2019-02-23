@@ -1,4 +1,4 @@
-# FixyNN -- DeepFreeze
+# DeepFreeze
 
 DeepFreeze is the tool used for modelling PPA and generating RTL for the FixyNN project. Scripts are included to generate RTL from a TensorFlow graph, and to synthesize/simulate that design. To work with a non-Tensorflow graph, you must write your own Layer data structure to feed to a VerilogGenerator object (see the end of `gen_verliog.py` for example usage).
 
@@ -93,7 +93,7 @@ Any 1x1 kernel does not require buffer preceeding it because it can directly con
 This results in depthwise separable layers not requiring any buffering between the depthwise and pointwise convolutions.
 Therefore we may fuse these two operations into one cambinational block.
 
-### Discussions
+### Discussion
 
 ##### conv2d vs dense
 
@@ -135,6 +135,20 @@ Future work will focus on further improving the generalization of fixed hardware
  * Implement `flatten.sv` to enable fully-fixed image classification networks by flattening an image from 2D layers to dense layers.
  * Implement batch normalization layers
  * Improve sram logic such that it begins consuming activations once `ker_size` of data is written to the sram.
+ 
+### Citing DeepFreeze
+
+If you find this DeepFreeze useful for your research, please use the following bibtex to cite us,
+
+```
+@article{
+  TODO,
+  title={TODO},
+  author={TODO},
+  journal={TODO},
+  year={2019}
+}
+```
  
 ### Authors
 
