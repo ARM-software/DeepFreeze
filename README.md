@@ -1,4 +1,4 @@
-# DeepFreeze
+# DeepFreeze -- FixyNN Hardware Toolflow
 
 DeepFreeze is the tool used for modelling PPA and generating RTL for the FixyNN project. Scripts are included to generate RTL from a TensorFlow graph, and to synthesize/simulate that design. To work with a non-Tensorflow graph, you must write your own Layer data structure to feed to a VerilogGenerator object (see the end of `gen_verliog.py` for example usage).
 
