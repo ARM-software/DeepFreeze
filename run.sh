@@ -29,19 +29,19 @@ python gen_verilog.py \
     --input_vec_filepath=$INPUT_VEC_FILEPATH \
     --output_vec_filepath=$OUTPUT_VEC_FILEPATH
 
-# python gen_test_vectors.py \
-#     --model_name=$MODEL_NAME \
-#     --meta_filepath=$META_FILEPATH \
-#     --checkpoint_filepath=$CHECKPOINT_FILEPATH \
-#     --endpoints_filepath=$ENDPOINTS_FILEPATH \
-#     --data_format_filepath=$DATA_FORMAT_FILEPATH \
-#     --input_activation_filepath=$INPUT_ACTIVATION_FILEPATH \
-#     --output_directory=$TEST_VEC_DIRECTORY
+python gen_test_vectors.py \
+    --model_name=$MODEL_NAME \
+    --meta_filepath=$META_FILEPATH \
+    --checkpoint_filepath=$CHECKPOINT_FILEPATH \
+    --endpoints_filepath=$ENDPOINTS_FILEPATH \
+    --data_format_filepath=$DATA_FORMAT_FILEPATH \
+    --input_activation_filepath=$INPUT_ACTIVATION_FILEPATH \
+    --output_directory=$TEST_VEC_DIRECTORY
 
-# python model_ppa.py \
-#     --model_name=$MODEL_NAME \
-#     --meta_filepath=$META_FILEPATH \
-#     --checkpoint_filepath=$CHECKPOINT_FILEPATH \
-#     --endpoints_filepath=$ENDPOINTS_FILEPATH \
-#     --data_format_filepath=$DATA_FORMAT_FILEPATH \
-#     --verbose
+python model_ppa.py \
+    --model_name=$MODEL_NAME \
+    --meta_filepath=$META_FILEPATH \
+    --checkpoint_filepath=$CHECKPOINT_FILEPATH \
+    --endpoints_filepath=$ENDPOINTS_FILEPATH \
+    --data_format_filepath=$DATA_FORMAT_FILEPATH \
+    --verbose
