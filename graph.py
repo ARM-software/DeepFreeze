@@ -67,6 +67,15 @@ class Graph():
         self.layers = []
         self.removed_layer_names = []
 
+    def __str__(self):
+        result = "GRAPH: %s\n" % self.name
+        ordered = self.get_ordered_layers()
+        ordered_names = [layer.name for layer in ordered]
+        result += "\tlayers: %s\n" % " -> ".join(ordered_names)
+        for layer in ordered:
+            result +=  "\t" +str(layer).replace("\n", "\n\t") + "\n"
+        return result
+
     def add_layer(self, layer):
         connections = layer.input_names + layer.output_names
         for layer_name in self.removed_layer_names:
@@ -78,15 +87,14 @@ class Graph():
 
     def remove_layer(self, layer):
         layer_name = layer.name
+        if layer in self.layers:
+            self.layers.remove(layer)
         for layer in self.layers:
             if layer_name in layer.input_names:
                 layer.input_names.remove(layer_name)
             if layer_name in layer.output_names:
                 layer.output_names.remove(layer_name)
         self.removed_layer_names.append(layer_name)
-
-    def remove_layer_references(self, layer):
-        self.remove_layer(layer)
 
     def find_layer(self, name):
         for layer in self.layers:
@@ -114,6 +122,14 @@ class Graph():
         else:
             return None
 
+    def get_previous_layer(self, cur_layer):
+        if cur_layer and cur_layer.input_names:
+            previous_layer_name = cur_layer.input_names[0] # TODO: enable branching
+            previous_layer = self.find_layer(previous_layer_name)
+            return previous_layer
+        else:
+            return None
+
     def get_ordered_layers(self):
         ordered = []
         cur_layer = self.get_input_layer()
@@ -121,15 +137,6 @@ class Graph():
             ordered += [cur_layer]
             cur_layer = self.get_next_layer(cur_layer)
         return ordered
-
-    def print(self):
-        if self.name:
-            print("GRAPH INFO: name: %s" % self.name)
-        ordered = self.get_ordered_layers()
-        ordered_names = [layer.name for layer in ordered]
-        print("GRAPH INFO: layers: %s\n" % " -> ".join(ordered_names))
-        for layer in ordered:
-            layer.print()
 
 
 class Layer():
@@ -156,6 +163,26 @@ class Layer():
             self.padding = self.__get_padding()
 
         self.has_relu = bool(self.__get_op_by_type("Relu"))
+
+    def __str__(self):
+        result = "LAYER: %s\n" % self.name
+        result += "\top type: %s\n" % self.op_type
+        result += "\tinputs: %s\n" % self.input_names
+        result += "\toutputs: %s\n" % self.output_names
+        result += "\tinput shapes: %s\n" % self.input_shapes
+        result += "\toutput shape: %s\n" % self.output_shape
+        if self.op_type in LAYER_TYPES_TRAINABLE:
+            if self.op_type == DEPTHWISE_SEPARABLE_CONV_2D:
+                result += "\tdepthwise weights shape: %s\n" % (self.weights[0].shape,)
+                result += "\tpointwise weights shape: %s\n" % (self.weights[1].shape,)
+            else:
+                result += "\tweights shape: %s\n" % (self.weights.shape,)
+            result += "\tbias shape: %s\n" % (self.bias.shape,)
+        if self.op_type in LAYER_TYPES_2D:
+            result += "\tkernel size: %s\n" % (self.kernel_size,)
+            result += "\tstrides: %s\n" % (self.strides,)
+            result += "\tpadding: %s" % self.padding
+        return result
 
     def __get_input_layer_names(self, tensor=None):
         """Return a list of all layer names that are direct inputs to this layer"""
@@ -301,32 +328,10 @@ class Layer():
         padding = op.get_attr("padding")
         return (padding)
 
-    def print(self):
-        def print_info(string):
-            print("LAYER INFO: %s" % string)
-            
-        print_info("name: %s" % self.name)
-        print_info("op type: %s" % self.op_type)
-        print_info("inputs: %s" % self.input_names)
-        print_info("outputs: %s" % self.output_names)
-        print_info("input shapes: %s" % self.input_shapes)
-        print_info("output shape: %s" % self.output_shape)
-        if self.op_type in LAYER_TYPES_TRAINABLE:
-            if self.op_type == DEPTHWISE_SEPARABLE_CONV_2D:
-                print_info("depthwise weights shape: %s" % (self.weights[0].shape,))
-                print_info("pointwise weights shape: %s" % (self.weights[1].shape,))
-            else:
-                print_info("weights shape: %s" % (self.weights.shape,))
-            print_info("bias shape: %s" % (self.bias.shape,))
-        if self.op_type in LAYER_TYPES_2D:
-            print_info("kernel size: %s" % (self.kernel_size,))
-            print_info("strides: %s" % (self.strides,))
-            print_info("padding: %s" % self.padding)
-        print("")
-
 
 def parse_tf_graph(
-    model_name, endpoints_filepath, meta_filepath, checkpoint_filepath, only_2d=False
+    model_name, endpoints_filepath, meta_filepath, checkpoint_filepath,
+    input_layer_name=None, output_layer_name=None
 ):
     """Parses a Tensorflow model into an intermediate representation"""
     tf_graph = get_tf_graph(meta_filepath)
@@ -335,9 +340,18 @@ def parse_tf_graph(
     graph = Graph(model_name)
     for layer_name in endpoints.keys():
         layer = Layer(layer_name, endpoints, tf_graph, checkpoint_filepath)
-        if only_2d and not layer.op_type in LAYER_TYPES_2D:
-            graph.remove_layer_references(layer)
-        else:
-            graph.add_layer(layer)
-    graph.print()
+        graph.add_layer(layer)
+
+    if input_layer_name is not None:
+        layer = graph.get_input_layer()
+        while layer.name != input_layer_name:
+            graph.remove_layer(layer)
+            layer = graph.get_input_layer()
+
+    if output_layer_name is not None:
+        layer = graph.get_output_layer()
+        while layer.name != output_layer_name:
+            graph.remove_layer(layer)
+            layer = graph.get_output_layer()
+
     return graph

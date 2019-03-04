@@ -52,7 +52,19 @@ class VerilogGenerator():
         self.b_nbits = self.b_nint + self.b_nfrac
         self.accumulator_nbits = 32
 
+        if input_layer.op_type in LAYER_TYPES_2D:
+            num_input_fmaps = input_layer.input_shapes[0][-1]
+            num_inputs_per_fmap = np.prod(input_layer.kernel_size)
+            num_inputs = num_input_fmaps
+        else:
+            num_inputs = input_layer.input_shapes[0][-1]
+        num_outputs = output_layer.output_shape[-1]
+        self.num_input_bits = num_inputs * self.a_nbits
+        self.num_output_bits = num_outputs * self.a_nbits
+        self.input_image_width = input_layer.input_shapes[0][2]
+
         self.modules = []
+        self.num_layers = 0
 
         # Names of current signals
         self.layer_act_signal_name = None
@@ -60,7 +72,7 @@ class VerilogGenerator():
         self.main_valid_signal_name = None
 
         self.main_module_filepath = os.path.join(self.output_dir, "top.sv")
-        self.__gen_main_module_header(input_layer, output_layer)
+        self.__gen_main_module_header()
     
     def __gen_layer_module_header(self, f, module_name, num_inputs, num_outputs):
         variable_map = [
@@ -120,7 +132,7 @@ class VerilogGenerator():
 
         self.layer_act_signal_name = "dense_mac"
 
-    def __gen_conv2d_mac_array(self, f, weights):
+    def __gen_conv_2d_mac_array(self, f, weights):
         """Write verilog to implement a traditional convolution"""
         num_rows = weights.shape[0]
         num_cols = weights.shape[1]
@@ -159,7 +171,7 @@ class VerilogGenerator():
         
         self.layer_act_signal_name = "conv_mac"
 
-    def __gen_depthwise_conv2d_mac_array(self, f, weights):
+    def __gen_depthwise_conv_2d_mac_array(self, f, weights):
         """Write verilog to implement a depthwise convolution"""
         num_rows = weights.shape[0]
         num_cols = weights.shape[1]
@@ -248,20 +260,12 @@ class VerilogGenerator():
         f.write("\n};\n\n")
         f.write("endmodule\n")
 
-    def __gen_main_module_header(self, input_layer, output_layer):
-        if input_layer.op_type in LAYER_TYPES_2D:
-            num_input_fmaps = input_layer.input_shapes[0][-1]
-            num_inputs_per_fmap = np.prod(input_layer.kernel_size)
-            num_inputs = num_input_fmaps
-        else:
-            num_inputs = input_layer.input_shapes[0][-1]
-        num_outputs = output_layer.output_shape[-1]
-
+    def __gen_main_module_header(self):
         variable_map = [
             #("MODULE_NAME", self.name),
             ("MODULE_NAME", "top"),
-            ("INPUT_ACT_NBITS", num_inputs * self.a_nbits),
-            ("OUTPUT_ACT_NBITS", num_outputs * self.a_nbits),
+            ("INPUT_ACT_NBITS", self.num_input_bits),
+            ("OUTPUT_ACT_NBITS", self.num_output_bits),
         ]
         lines = read_and_fill_template(MAIN_MODULE_HEADER_TEMPLATE, variable_map)
         with open(self.main_module_filepath, "w") as f:
@@ -356,12 +360,15 @@ class VerilogGenerator():
             if layer.op_type == DENSE:
                 self.__gen_dense_mac_array(f, layer.weights)
             elif layer.op_type == CONV_2D:
-                self.__gen_conv2d_mac_array(f, layer.weights)
+                self.__gen_conv_2d_mac_array(f, layer.weights)
             elif layer.op_type == DEPTHWISE_CONV_2D:
-                self.__gen_depthwise_conv2d_mac_array(f, layer.weights)
+                self.__gen_depthwise_conv_2d_mac_array(f, layer.weights)
             elif layer.op_type == DEPTHWISE_SEPARABLE_CONV_2D:
-                self.__gen_depthwise_conv2d_mac_array(f, layer.weights[0])
-                self.__gen_conv2d_mac_array(f, layer.weights[1])
+                self.__gen_depthwise_conv_2d_mac_array(f, layer.weights[0])
+                self.__gen_conv_2d_mac_array(f, layer.weights[1])
+
+            if layer.bias is not None:
+                self.__gen_bias_add_array(f, layer.bias)
 
             if layer.has_relu:
                 self.__gen_relu_array(f, num_outputs)
@@ -393,6 +400,20 @@ class VerilogGenerator():
                 self.__copy_module("sram_controller")
             self.__gen_buffer_instance(layer)
         self.__gen_layer_instance(layer)
+        self.num_layers += 1
+
+    def generate_testbench(self, input_act_filepath, output_act_filepath):
+        variable_map = [
+            ("INPUT_ACT_NBITS", self.num_input_bits),
+            ("OUTPUT_ACT_NBITS", self.num_output_bits),
+            ("INPUT_ACT_VEC_FILENAME", input_act_filepath),
+            ("OUTPUT_ACT_VEC_FILENAME", output_act_filepath),
+            ("NUM_WAIT_CYCLES", self.num_layers * self.input_image_width)
+        ]
+        lines = read_and_fill_template(TESTBENCH_TEMPLATE, variable_map)
+        testbench_filepath = os.path.join(self.output_dir, "tb.sv")
+        with open(testbench_filepath, "w") as f:
+            f.writelines(lines)
 
     def close(self):
         self.__gen_main_module_output_signals()
@@ -403,13 +424,18 @@ if __name__ == "__main__":
     parser.add_argument("--meta_filepath", type=str, required=True)
     parser.add_argument("--checkpoint_filepath", type=str, required=True)
     parser.add_argument("--endpoints_filepath", type=str, required=True)
+    parser.add_argument("--input_layer_name", type=str, default=None)
+    parser.add_argument("--output_layer_name", type=str, default=None)
     parser.add_argument("--data_format_filepath", type=str, required=True)
     parser.add_argument("--output_directory", type=str, required=True)
+    parser.add_argument("--input_vec_filepath", type=str, default=None)
+    parser.add_argument("--output_vec_filepath", type=str, default=None)
     FLAGS = parser.parse_args()
 
     graph = parse_tf_graph(FLAGS.model_name, FLAGS.endpoints_filepath,
                            FLAGS.meta_filepath, FLAGS.checkpoint_filepath,
-                           only_2d=True)
+                           FLAGS.input_layer_name, FLAGS.output_layer_name)
+    
     with open(FLAGS.data_format_filepath, "r") as f:
         data_format = json.load(f)
 
@@ -420,5 +446,9 @@ if __name__ == "__main__":
     while layer:
         vgen.add_layer(layer)
         layer = graph.get_next_layer(layer)
+
+    if FLAGS.input_vec_filepath is not None and FLAGS.output_vec_filepath is not None:
+        vgen.generate_testbench(FLAGS.input_vec_filepath, FLAGS.output_vec_filepath)
+
     vgen.close()
     

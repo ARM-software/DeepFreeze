@@ -15,6 +15,7 @@ POOLING_LAYER_INSTANCE_TEMPLATE   = os.path.join(TEMPLATE_DIRECTORY, "pooling_la
 BUFFER_INSTANCE_TEMPLATE          = os.path.join(TEMPLATE_DIRECTORY, "buffer_instance.txt")
 MAIN_MODULE_HEADER_TEMPLATE       = os.path.join(TEMPLATE_DIRECTORY, "main_module_header.txt")
 MAIN_MODULE_OUTPUT_TEMPLATE       = os.path.join(TEMPLATE_DIRECTORY, "main_module_output.txt")
+TESTBENCH_TEMPLATE                = os.path.join(TEMPLATE_DIRECTORY, "tb.txt")
 
 def read_and_fill_template(filename, variable_map):
     with open(filename, "r") as f:

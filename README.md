@@ -130,7 +130,7 @@ Future work will focus on further improving the generalization of fixed hardware
 ### TODOs
 
  * Add support for `SAME` padding by modifying `sram_controller.sv`
- * Generalize poolling layers to any kernal size.
+ * Generalize poolling layers to any kernel size.
  * Automate testing and validation
  * Implement `flatten.sv` to enable fully-fixed image classification networks by flattening an image from 2D layers to dense layers.
  * Implement batch normalization layers

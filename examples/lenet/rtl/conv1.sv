@@ -169,18 +169,31 @@ assign conv_mac_5 =
 	 3'sd 2 * $signed(input_fmap_0[383:368]) +
 	 3'sd 2 * $signed(input_fmap_0[399:384]);
 
+logic [31:0] bias_add_0;
+assign bias_add_0 = conv_mac_0 + 10'd256;
+logic [31:0] bias_add_1;
+assign bias_add_1 = conv_mac_1;
+logic [31:0] bias_add_2;
+assign bias_add_2 = conv_mac_2;
+logic [31:0] bias_add_3;
+assign bias_add_3 = conv_mac_3;
+logic [31:0] bias_add_4;
+assign bias_add_4 = conv_mac_4;
+logic [31:0] bias_add_5;
+assign bias_add_5 = conv_mac_5;
+
 logic [15:0] relu_0;
-assign relu_0[15:0] = (conv_mac_0[31]==0) ? {{conv_mac_0[31],conv_mac_0[18:4]}} : '0;
+assign relu_0[15:0] = (bias_add_0[31]==0) ? {{bias_add_0[31],bias_add_0[18:4]}} : '0;
 logic [15:0] relu_1;
-assign relu_1[15:0] = (conv_mac_1[31]==0) ? {{conv_mac_1[31],conv_mac_1[18:4]}} : '0;
+assign relu_1[15:0] = (bias_add_1[31]==0) ? {{bias_add_1[31],bias_add_1[18:4]}} : '0;
 logic [15:0] relu_2;
-assign relu_2[15:0] = (conv_mac_2[31]==0) ? {{conv_mac_2[31],conv_mac_2[18:4]}} : '0;
+assign relu_2[15:0] = (bias_add_2[31]==0) ? {{bias_add_2[31],bias_add_2[18:4]}} : '0;
 logic [15:0] relu_3;
-assign relu_3[15:0] = (conv_mac_3[31]==0) ? {{conv_mac_3[31],conv_mac_3[18:4]}} : '0;
+assign relu_3[15:0] = (bias_add_3[31]==0) ? {{bias_add_3[31],bias_add_3[18:4]}} : '0;
 logic [15:0] relu_4;
-assign relu_4[15:0] = (conv_mac_4[31]==0) ? {{conv_mac_4[31],conv_mac_4[18:4]}} : '0;
+assign relu_4[15:0] = (bias_add_4[31]==0) ? {{bias_add_4[31],bias_add_4[18:4]}} : '0;
 logic [15:0] relu_5;
-assign relu_5[15:0] = (conv_mac_5[31]==0) ? {{conv_mac_5[31],conv_mac_5[18:4]}} : '0;
+assign relu_5[15:0] = (bias_add_5[31]==0) ? {{bias_add_5[31],bias_add_5[18:4]}} : '0;
 
 assign output_act = {
 	relu_5,

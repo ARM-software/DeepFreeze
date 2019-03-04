@@ -37,14 +37,16 @@ endgenerate
 // reshape
 always_comb begin
     case (1'b1)
-        (col_ptr == 'd0): pixel_out_wire = {pixel_in,pixel_col[4],pixel_col[3],pixel_col[2],pixel_col[1]};
-        (col_ptr == 'd1): pixel_out_wire = {pixel_in,pixel_col[0],pixel_col[4],pixel_col[3],pixel_col[2]};
-        (col_ptr == 'd2): pixel_out_wire = {pixel_in,pixel_col[1],pixel_col[0],pixel_col[4],pixel_col[3]};
-        (col_ptr == 'd3): pixel_out_wire = {pixel_in,pixel_col[2],pixel_col[1],pixel_col[0],pixel_col[4]};
-        (col_ptr == 'd4): pixel_out_wire = {pixel_in,pixel_col[3],pixel_col[2],pixel_col[1],pixel_col[0]};
+        (col_ptr == 'd0): pixel_out_wire = {pixel_in[5*BITWIDTH-1:4*BITWIDTH],pixel_col[4][5*BITWIDTH-1:4*BITWIDTH],pixel_col[3][5*BITWIDTH-1:4*BITWIDTH],pixel_col[2][5*BITWIDTH-1:4*BITWIDTH],pixel_col[1][5*BITWIDTH-1:4*BITWIDTH],pixel_in[4*BITWIDTH-1:3*BITWIDTH],pixel_col[4][4*BITWIDTH-1:3*BITWIDTH],pixel_col[3][4*BITWIDTH-1:3*BITWIDTH],pixel_col[2][4*BITWIDTH-1:3*BITWIDTH],pixel_col[1][4*BITWIDTH-1:3*BITWIDTH],pixel_in[3*BITWIDTH-1:2*BITWIDTH],pixel_col[4][3*BITWIDTH-1:2*BITWIDTH],pixel_col[3][3*BITWIDTH-1:2*BITWIDTH],pixel_col[2][3*BITWIDTH-1:2*BITWIDTH],pixel_col[1][3*BITWIDTH-1:2*BITWIDTH],pixel_in[2*BITWIDTH-1:BITWIDTH],pixel_col[4][2*BITWIDTH-1:BITWIDTH],pixel_col[3][2*BITWIDTH-1:BITWIDTH],pixel_col[2][2*BITWIDTH-1:BITWIDTH],pixel_col[1][2*BITWIDTH-1:BITWIDTH],pixel_in[BITWIDTH-1:0],pixel_col[4][BITWIDTH-1:0],pixel_col[3][BITWIDTH-1:0],pixel_col[2][BITWIDTH-1:0],pixel_col[1][BITWIDTH-1:0]};
+        (col_ptr == 'd1): pixel_out_wire = {pixel_in[5*BITWIDTH-1:4*BITWIDTH],pixel_col[0][5*BITWIDTH-1:4*BITWIDTH],pixel_col[4][5*BITWIDTH-1:4*BITWIDTH],pixel_col[3][5*BITWIDTH-1:4*BITWIDTH],pixel_col[2][5*BITWIDTH-1:4*BITWIDTH],pixel_in[4*BITWIDTH-1:3*BITWIDTH],pixel_col[0][4*BITWIDTH-1:3*BITWIDTH],pixel_col[4][4*BITWIDTH-1:3*BITWIDTH],pixel_col[3][4*BITWIDTH-1:3*BITWIDTH],pixel_col[2][4*BITWIDTH-1:3*BITWIDTH],pixel_in[3*BITWIDTH-1:2*BITWIDTH],pixel_col[0][3*BITWIDTH-1:2*BITWIDTH],pixel_col[4][3*BITWIDTH-1:2*BITWIDTH],pixel_col[3][3*BITWIDTH-1:2*BITWIDTH],pixel_col[2][3*BITWIDTH-1:2*BITWIDTH],pixel_in[2*BITWIDTH-1:BITWIDTH],pixel_col[0][2*BITWIDTH-1:BITWIDTH],pixel_col[4][2*BITWIDTH-1:BITWIDTH],pixel_col[3][2*BITWIDTH-1:BITWIDTH],pixel_col[2][2*BITWIDTH-1:BITWIDTH],pixel_in[BITWIDTH-1:0],pixel_col[0][BITWIDTH-1:0],pixel_col[4][BITWIDTH-1:0],pixel_col[3][BITWIDTH-1:0],pixel_col[2][BITWIDTH-1:0]};
+        (col_ptr == 'd2): pixel_out_wire = {pixel_in[5*BITWIDTH-1:4*BITWIDTH],pixel_col[1][5*BITWIDTH-1:4*BITWIDTH],pixel_col[0][5*BITWIDTH-1:4*BITWIDTH],pixel_col[4][5*BITWIDTH-1:4*BITWIDTH],pixel_col[3][5*BITWIDTH-1:4*BITWIDTH],pixel_in[4*BITWIDTH-1:3*BITWIDTH],pixel_col[1][4*BITWIDTH-1:3*BITWIDTH],pixel_col[0][4*BITWIDTH-1:3*BITWIDTH],pixel_col[4][4*BITWIDTH-1:3*BITWIDTH],pixel_col[3][4*BITWIDTH-1:3*BITWIDTH],pixel_in[3*BITWIDTH-1:2*BITWIDTH],pixel_col[1][3*BITWIDTH-1:2*BITWIDTH],pixel_col[0][3*BITWIDTH-1:2*BITWIDTH],pixel_col[4][3*BITWIDTH-1:2*BITWIDTH],pixel_col[3][3*BITWIDTH-1:2*BITWIDTH],pixel_in[2*BITWIDTH-1:BITWIDTH],pixel_col[1][2*BITWIDTH-1:BITWIDTH],pixel_col[0][2*BITWIDTH-1:BITWIDTH],pixel_col[4][2*BITWIDTH-1:BITWIDTH],pixel_col[3][2*BITWIDTH-1:BITWIDTH],pixel_in[BITWIDTH-1:0],pixel_col[1][BITWIDTH-1:0],pixel_col[0][BITWIDTH-1:0],pixel_col[4][BITWIDTH-1:0],pixel_col[3][BITWIDTH-1:0]};
+        (col_ptr == 'd3): pixel_out_wire = {pixel_in[5*BITWIDTH-1:4*BITWIDTH],pixel_col[2][5*BITWIDTH-1:4*BITWIDTH],pixel_col[1][5*BITWIDTH-1:4*BITWIDTH],pixel_col[0][5*BITWIDTH-1:4*BITWIDTH],pixel_col[4][5*BITWIDTH-1:4*BITWIDTH],pixel_in[4*BITWIDTH-1:3*BITWIDTH],pixel_col[2][4*BITWIDTH-1:3*BITWIDTH],pixel_col[1][4*BITWIDTH-1:3*BITWIDTH],pixel_col[0][4*BITWIDTH-1:3*BITWIDTH],pixel_col[4][4*BITWIDTH-1:3*BITWIDTH],pixel_in[3*BITWIDTH-1:2*BITWIDTH],pixel_col[2][3*BITWIDTH-1:2*BITWIDTH],pixel_col[1][3*BITWIDTH-1:2*BITWIDTH],pixel_col[0][3*BITWIDTH-1:2*BITWIDTH],pixel_col[4][3*BITWIDTH-1:2*BITWIDTH],pixel_in[2*BITWIDTH-1:BITWIDTH],pixel_col[2][2*BITWIDTH-1:BITWIDTH],pixel_col[1][2*BITWIDTH-1:BITWIDTH],pixel_col[0][2*BITWIDTH-1:BITWIDTH],pixel_col[4][2*BITWIDTH-1:BITWIDTH],pixel_in[BITWIDTH-1:0],pixel_col[2][BITWIDTH-1:0],pixel_col[1][BITWIDTH-1:0],pixel_col[0][BITWIDTH-1:0],pixel_col[4][BITWIDTH-1:0]};
+        (col_ptr == 'd4): pixel_out_wire = {pixel_in[5*BITWIDTH-1:4*BITWIDTH],pixel_col[3][5*BITWIDTH-1:4*BITWIDTH],pixel_col[2][5*BITWIDTH-1:4*BITWIDTH],pixel_col[1][5*BITWIDTH-1:4*BITWIDTH],pixel_col[0][5*BITWIDTH-1:4*BITWIDTH],pixel_in[4*BITWIDTH-1:3*BITWIDTH],pixel_col[3][4*BITWIDTH-1:3*BITWIDTH],pixel_col[2][4*BITWIDTH-1:3*BITWIDTH],pixel_col[1][4*BITWIDTH-1:3*BITWIDTH],pixel_col[0][4*BITWIDTH-1:3*BITWIDTH],pixel_in[3*BITWIDTH-1:2*BITWIDTH],pixel_col[3][3*BITWIDTH-1:2*BITWIDTH],pixel_col[2][3*BITWIDTH-1:2*BITWIDTH],pixel_col[1][3*BITWIDTH-1:2*BITWIDTH],pixel_col[0][3*BITWIDTH-1:2*BITWIDTH],pixel_in[2*BITWIDTH-1:BITWIDTH],pixel_col[3][2*BITWIDTH-1:BITWIDTH],pixel_col[2][2*BITWIDTH-1:BITWIDTH],pixel_col[1][2*BITWIDTH-1:BITWIDTH],pixel_col[0][2*BITWIDTH-1:BITWIDTH],pixel_in[BITWIDTH-1:0],pixel_col[3][BITWIDTH-1:0],pixel_col[2][BITWIDTH-1:0],pixel_col[1][BITWIDTH-1:0],pixel_col[0][BITWIDTH-1:0]};
         default:          pixel_out_wire = '0;
     endcase
 end
+
+
 
 // output flop
 always_ff @(posedge clk or negedge rstn) begin
@@ -102,9 +104,9 @@ endgenerate
 // reshape
 always_comb begin
     case (1'b1)
-        (col_ptr == 'd0): pixel_out_wire = {pixel_in,pixel_col[2],pixel_col[1]};
-        (col_ptr == 'd1): pixel_out_wire = {pixel_in,pixel_col[0],pixel_col[2]};
-        (col_ptr == 'd2): pixel_out_wire = {pixel_in,pixel_col[1],pixel_col[0]};
+        (col_ptr == 'd0): pixel_out_wire = {pixel_in[3*BITWIDTH-1:2*BITWIDTH],pixel_col[2][3*BITWIDTH-1:2*BITWIDTH],pixel_col[1][3*BITWIDTH-1:2*BITWIDTH],pixel_in[2*BITWIDTH-1:BITWIDTH],pixel_col[2][2*BITWIDTH-1:BITWIDTH],pixel_col[1][2*BITWIDTH-1:BITWIDTH],pixel_in[BITWIDTH-1:0],pixel_col[2][BITWIDTH-1:0],pixel_col[1][BITWIDTH-1:0]};
+        (col_ptr == 'd1): pixel_out_wire = {pixel_in[3*BITWIDTH-1:2*BITWIDTH],pixel_col[0][3*BITWIDTH-1:2*BITWIDTH],pixel_col[2][3*BITWIDTH-1:2*BITWIDTH],pixel_in[2*BITWIDTH-1:BITWIDTH],pixel_col[0][2*BITWIDTH-1:BITWIDTH],pixel_col[2][2*BITWIDTH-1:BITWIDTH],pixel_in[BITWIDTH-1:0],pixel_col[0][BITWIDTH-1:0],pixel_col[2][BITWIDTH-1:0]};
+        (col_ptr == 'd2): pixel_out_wire = {pixel_in[3*BITWIDTH-1:2*BITWIDTH],pixel_col[1][3*BITWIDTH-1:2*BITWIDTH],pixel_col[0][3*BITWIDTH-1:2*BITWIDTH],pixel_in[2*BITWIDTH-1:BITWIDTH],pixel_col[1][2*BITWIDTH-1:BITWIDTH],pixel_col[0][2*BITWIDTH-1:BITWIDTH],pixel_in[BITWIDTH-1:0],pixel_col[1][BITWIDTH-1:0],pixel_col[0][BITWIDTH-1:0]};
         default:          pixel_out_wire = '0;
     endcase
 end
@@ -165,8 +167,8 @@ endgenerate
 // reshape
 always_comb begin
     case (1'b1)
-        (col_ptr == 'd0): pixel_out_wire = {pixel_in,pixel_col[1]};
-        (col_ptr == 'd1): pixel_out_wire = {pixel_in,pixel_col[0]};
+        (col_ptr == 'd0): pixel_out_wire = {pixel_in[2*BITWIDTH-1:BITWIDTH],pixel_col[1][2*BITWIDTH-1:BITWIDTH],pixel_in[BITWIDTH-1:0],pixel_col[1][BITWIDTH-1:0]};
+        (col_ptr == 'd1): pixel_out_wire = {pixel_in[2*BITWIDTH-1:BITWIDTH],pixel_col[0][2*BITWIDTH-1:BITWIDTH],pixel_in[BITWIDTH-1:0],pixel_col[0][BITWIDTH-1:0]};
         default:          pixel_out_wire = '0;
     endcase
 end
