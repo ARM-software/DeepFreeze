@@ -140,22 +140,25 @@ Future work will focus on further improving the generalization of fixed hardware
  * Implement `flatten.sv` to enable fully-fixed image classification networks by flattening an image from 2D layers to dense layers.
  * Implement batch normalization layers
  * Improve sram logic such that it begins consuming activations once `ker_size` of data is written to the sram.
- 
-### Citing DeepFreeze
+
+### Publications
+
+Published works that have utilized this tool have been presented at SysML 2019 and at the NeurIPS 2018 On-Device ML Workshop. The full paper can be found on arXiv at [FixyNN: Efficient Hardware for Mobile Computer Vision via Transfer Learning](https://arxiv.org/abs/1902.11128).
+
+##### Citing DeepFreeze
 
 If you find this DeepFreeze useful for your research, please use the following bibtex to cite us,
 
 ```
-@article{
-  TODO,
-  title={TODO},
-  author={TODO},
-  journal={TODO},
+@article{fixynn,
+  title={FixyNN: Efficient Hardware for Mobile Computer Vision via Transfer Learning},
+  author={Whatmough, Paul and Zhou, Chuteng and Hansen, Patrick and Venkataramanaiah, Shreyas Kolala and Seo, Jae-Sun and Mattina, Matthew},
+  journal={SysML},
   year={2019}
 }
 ```
  
-### Authors
+##### Authors
 
 Patrick Hansen, Arm ML Research Lab, Boston, MA
 
