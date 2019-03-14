@@ -31,7 +31,8 @@ logic [3-1:0] row_stride_counter;
 logic [3-1:0] row_stride_counter_nxt;
 
 always_ff @(posedge clk or negedge rstn) begin
-    if (!rstn || flush) begin
+    //if (!rstn || flush) begin     // TODO
+    if (!rstn) begin
         row_ptr <= '0;
         col_ptr <= '0;
         init_row_counter <= '0;
