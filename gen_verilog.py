@@ -251,9 +251,22 @@ class VerilogGenerator():
         self.layer_act_signal_name = "relu"
 
     def __gen_relu6_array(self, f, num_outputs):
-        """Generate an array of ReLU6 operations for a layer module"""
-        # TODO
-        pass
+    """Generate an array of ReLU6 operations for a layer module"""
+    input_idx_low = self.w_nfrac
+    input_idx_high = input_idx_low + self.a_nbits - 1
+
+    for cur_output in range(num_outputs):
+        input_name = "%s_%d" % (self.layer_act_signal_name, cur_output)
+        output_name = "relu_%d" % (cur_output)
+        f.write("logic [%d:0] %s;\n" % (self.a_nbits-1, output_name))
+        f.write("assign %s[%d:0] = (%s[%d]==0) ? ((%s<3'd6) ? {{%s[%d],%s[%d:%d]}} :'d6) : '0;\n" % (
+                output_name, self.a_nbits-1,
+                input_name, self.accumulator_nbits-1,
+                input_name, self.accumulator_nbits-1,
+                input_name, input_idx_high-1, input_idx_low))
+    f.write("\n")
+
+    self.layer_act_signal_name = "relu"				   
 
     def __gen_layer_module_output(self, f, num_outputs):
         """Write verilog to generate the output signal for a layer module"""
@@ -304,6 +317,7 @@ class VerilogGenerator():
             ("ACT_NBITS", self.a_nbits),
             ("NUM_INPUT_FMAPS", layer.input_shapes[0][-1]),
             ("STRIDES", layer.strides[0]),
+			 ("PADS", 0),#TODO: add padding here.. (may be layer.pad) - Shreyas																  
             ("NUM_WORDS", layer.input_shapes[0][1]),
             ("ADDRESS_WIDTH", layer.input_shapes[0][1].bit_length())
         ]
