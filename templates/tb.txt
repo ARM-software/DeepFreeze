@@ -8,7 +8,6 @@ int output_fd;
 logic clk;
 logic rstn;
 logic valid;
-logic flush;
 logic [INPUT_ACT_NBITS-1:0] input_act;
 logic [OUTPUT_ACT_NBITS-1:0] output_act;
 logic ready;
@@ -32,11 +31,9 @@ end
 initial begin
     // Initialize module inputs
     valid = 0;
-    flush = 1;
     rstn = 0;
     input_act = '0;
     #20 @(negedge clk);
-    flush = 0;
     rstn = 1;
 
     // Open vector files
