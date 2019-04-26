@@ -15,7 +15,7 @@ INPUT_ACTIVATION_FILEPATH="${PWD}/examples/mnist_data/mnist_0.npy"
 INPUT_VEC_FILEPATH="${TEST_VEC_DIRECTORY}/input_act.vec"
 OUTPUT_VEC_FILEPATH="${TEST_VEC_DIRECTORY}/output_act.vec"
 
-mkdir -p $OUTPUT_DIRECTORY $TEST_VEC_DIRECTORY
+mkdir -p $RTL_DIRECTORY $TEST_VEC_DIRECTORY
 
 python gen_verilog.py \
     --model_name=$MODEL_NAME \

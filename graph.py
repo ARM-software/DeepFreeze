@@ -26,6 +26,14 @@ LAYER_TYPES_POOL = [MAX_POOL_2D, AVG_POOL_2D]
 LAYER_TYPES_2D = LAYER_TYPES_CONV + LAYER_TYPES_POOL
 LAYER_TYPES_TRAINABLE = LAYER_TYPES_CONV + [DENSE]
 
+RELU = "Relu"
+RELU6 = "Relu6"
+SOFTMAX = None
+SIGMOID = None
+TANH = None
+
+ACTIVATION_FUNCTIONS = [RELU, RELU6, SOFTMAX, SIGMOID, TANH]
+
 
 def get_tf_graph(meta_graph_filepath):
     tf.train.import_meta_graph(meta_graph_filepath)
@@ -162,7 +170,7 @@ class Layer():
             self.strides = self.__get_strides()
             self.padding = self.__get_padding()
 
-        self.has_relu = bool(self.__get_op_by_type("Relu"))
+        self.activation_function = self.__get_activation_function()
 
     def __str__(self):
         result = "LAYER: %s\n" % self.name
@@ -171,6 +179,7 @@ class Layer():
         result += "\toutputs: %s\n" % self.output_names
         result += "\tinput shapes: %s\n" % self.input_shapes
         result += "\toutput shape: %s\n" % self.output_shape
+        result += "\tactivation function: %s\n" % self.activation_function
         if self.op_type in LAYER_TYPES_TRAINABLE:
             if self.op_type == DEPTHWISE_SEPARABLE_CONV_2D:
                 result += "\tdepthwise weights shape: %s\n" % (self.weights[0].shape,)
@@ -235,11 +244,15 @@ class Layer():
         else:
             raise Exception("Could not match layer with a known op type")
 
-    def __get_op_by_type(self, op_type):
+    def __get_ops_by_type(self, op_type):
+        if op_type == None:
+            return None
+
+        ops = []
         for op in self._layer_ops:
             if op.type == op_type:
-                return op
-        return None
+                ops.append(op)
+        return ops
 
     def __get_input_shapes(self):
         """Return a list of all input activation tensor shapes to node"""
@@ -261,34 +274,41 @@ class Layer():
     def __get_weights(self, graph, ckpt):
         """Extract weight parameters from a layer"""
         if self.op_type == DEPTHWISE_SEPARABLE_CONV_2D:
-            depthwise_weights = self.__get_op_by_type("DepthwiseConv2dNative").inputs[1]
-            pointwise_weights = self.__get_op_by_type("Conv2D").inputs[1]
+            depthwise_weights = self.__get_ops_by_type("DepthwiseConv2dNative")[0].inputs[1]
+            pointwise_weights = self.__get_ops_by_type("Conv2D")[0].inputs[1]
             return [
                 get_variable_from_graph(graph, ckpt, depthwise_weights),
                 get_variable_from_graph(graph, ckpt, pointwise_weights)
             ]
         elif self.op_type == DEPTHWISE_CONV_2D:
-            weights = self.__get_op_by_type("DepthwiseConv2dNative").inputs[1]
+            weights = self.__get_ops_by_type("DepthwiseConv2dNative")[0].inputs[1]
             return get_variable_from_graph(graph, ckpt, weights)
         elif self.op_type == CONV_2D:
-            weights = self.__get_op_by_type("Conv2D").inputs[1]
+            weights = self.__get_ops_by_type("Conv2D")[0].inputs[1]
             return get_variable_from_graph(graph, ckpt, weights)
         elif self.op_type == DENSE:
-            weights = self.__get_op_by_type("MatMul").inputs[1]
+            weights = self.__get_ops_by_type("MatMul")[0].inputs[1]
             return get_variable_from_graph(graph, ckpt, weights)
         else:
             raise Exception("No weights found in layer: %s" % self.name)
 
     def __get_bias(self, graph, ckpt):
         """Extract bias parameters from a layer"""
-        if self.__get_op_by_type("BiasAdd"):
-            bias = self.__get_op_by_type("BiasAdd").inputs[1]
-            return get_variable_from_graph(graph, ckpt, bias)
-        elif self.op_type == DENSE and __get_op_by_type("Add"):
-            bias = self.__get_op_by_type("Add").inputs[1]
-            return get_variable_from_graph(graph, ckpt, bias)
-        else:
+        bias = None
+        bias_add_ops = self.__get_ops_by_type("BiasAdd")
+        add_ops = self.__get_ops_by_type("Add")
+        if bias_add_ops:
+            assert(len(bias_add_ops) == 1)
+            bias = bias_add_ops[0].inputs[1]
+        if add_ops:
+            for op in add_ops:
+                if "bias" in op.inputs[1].name.lower():
+                    bias = op.inputs[1]
+        
+        if bias == None:
             raise Exception("No bias found in layer: %s" % self.name)
+        else:
+            return get_variable_from_graph(graph, ckpt, bias)
 
     def __get_batch_norm(self, graph, ckpt):
         pass # TODO
@@ -296,13 +316,13 @@ class Layer():
     def __get_2d_op(self):
         """Returns the desired 2d op for the given layer type"""
         if self.op_type in [DEPTHWISE_SEPARABLE_CONV_2D, DEPTHWISE_CONV_2D]:
-            return self.__get_op_by_type("DepthwiseConv2dNative")
+            return self.__get_ops_by_type("DepthwiseConv2dNative")[0]
         elif self.op_type == CONV_2D:
-            return self.__get_op_by_type("Conv2D")
+            return self.__get_ops_by_type("Conv2D")[0]
         elif self.op_type == MAX_POOL_2D:
-            return self.__get_op_by_type("MaxPool")
+            return self.__get_ops_by_type("MaxPool")[0]
         elif self.op_type == AVG_POOL_2D:
-            return self.__get_op_by_type("AvgPool")
+            return self.__get_ops_by_type("AvgPool")[0]
         else:
             raise Exception("No 2d operations in layer: %s" % self.name)
 
@@ -327,6 +347,12 @@ class Layer():
         op = self.__get_2d_op()
         padding = op.get_attr("padding")
         return (padding)
+
+    def __get_activation_function(self):
+        for fn in ACTIVATION_FUNCTIONS:
+            if self.__get_ops_by_type(fn):
+                return fn
+        return None
 
 
 def parse_tf_graph(
@@ -353,5 +379,7 @@ def parse_tf_graph(
         while layer.name != output_layer_name:
             graph.remove_layer(layer)
             layer = graph.get_output_layer()
+
+    print(graph)
 
     return graph

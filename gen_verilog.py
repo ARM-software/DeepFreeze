@@ -250,6 +250,11 @@ class VerilogGenerator():
 
         self.layer_act_signal_name = "relu"
 
+    def __gen_relu6_array(self, f, num_outputs):
+        """Generate an array of ReLU6 operations for a layer module"""
+        # TODO
+        pass
+
     def __gen_layer_module_output(self, f, num_outputs):
         """Write verilog to generate the output signal for a layer module"""
         f.write("assign output_act = {\n")
@@ -370,8 +375,10 @@ class VerilogGenerator():
             if layer.bias is not None:
                 self.__gen_bias_add_array(f, layer.bias)
 
-            if layer.has_relu:
+            if layer.activation_function == RELU:
                 self.__gen_relu_array(f, num_outputs)
+            elif layer.activation_function == RELU6:
+                self.__gen_relu6_array(f, num_outputs)
 
             self.__gen_layer_module_output(f, num_outputs)
 
