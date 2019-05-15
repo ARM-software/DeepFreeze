@@ -64,7 +64,7 @@ endgenerate
 
 logic col_ptr_done;
 logic top_pad_en;
-assign col_ptr_done = col_ptr==(INPUT_X_DIM -1);
+assign col_ptr_done = col_ptr==(INPUT_X_DIM-1);
 
 assign row_is_complete  	= valid && col_ptr_done;
 assign col_ptr_nxt 			= valid ? (col_ptr_done ? 'd0 : col_ptr + 1'd1) : col_ptr ; 

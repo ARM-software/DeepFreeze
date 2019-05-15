@@ -18,29 +18,51 @@ module line_buffer_controller
 
 logic [3-1:0] init_col_ptr_nxt;
 logic [3-1:0] col_ptr_nxt;
-logic row_complete_D1;
 
 logic [7:0] global_col_ptr;
 logic [7:0] global_col_ptr_nxt;
+
+//-------------------------------------
+logic padrow_complete;
+logic row_complete_D1;
+logic row_complete_D2;
+always_ff @(posedge clk or negedge rstn) 
+begin
+	if (!rstn) 
+	begin
+			row_complete_D1 	 <='0;
+			row_complete_D2 	 <='0;
+	end
+	else if (padrow_complete)
+	begin	
+			row_complete_D1 		<= '0;
+			row_complete_D2 		<= '0;
+	end
+	else
+	begin
+			row_complete_D1 		<= row_complete;
+			row_complete_D2 		<= row_complete_D1;
+	end
+end
+assign padrow_complete = row_complete_D1;
+//-------------------------------------
+
 
 // initialize counters
 always_ff @(posedge clk or negedge rstn) begin
     if (!rstn) begin
         col_ptr 			 <= PAD;//Left padding
         init_col_ptr 		 <= PAD;//Left padding
-        row_complete_D1 	 <='0;
         global_col_ptr 		 <='0;
     end
-    else if (row_complete_D1) begin
+    else if (padrow_complete) begin
         col_ptr 				<= PAD; //Left padding
         init_col_ptr 			<= PAD;//Left padding
-        row_complete_D1 		<= '0;
         global_col_ptr 			<= '0;
     end
     else begin
         col_ptr 				<= col_ptr_nxt;
         init_col_ptr 			<= init_col_ptr_nxt;
-        row_complete_D1 		<= row_complete;
         global_col_ptr 			<= global_col_ptr_nxt;
     end
 end
@@ -48,8 +70,8 @@ end
 
 // Increment counters based on conditions
 assign col_ptr_nxt 		  = valid ? (col_ptr==KER_SIZE-1 ? '0 : col_ptr + 1'd1) : col_ptr;
-assign global_col_ptr_nxt = row_complete_D1 ? 'd0 : valid ?  global_col_ptr + 1'd1: global_col_ptr;
-assign init_col_ptr_nxt   = valid && init_col_ptr<KER_SIZE-1 ? init_col_ptr + 1'd1 :row_complete_D1==1'b1 ? PAD : init_col_ptr;
+assign global_col_ptr_nxt = padrow_complete ? 'd0 : valid ?  global_col_ptr + 1'd1: global_col_ptr;
+assign init_col_ptr_nxt   = valid && init_col_ptr<KER_SIZE-1 ? init_col_ptr + 1'd1 :padrow_complete==1'b1 ? PAD : init_col_ptr;
 
 // Left pad logic
 logic [KER_SIZE-1:0]left_pad_shift;
@@ -62,7 +84,7 @@ generate
 		begin
 			if (!rstn) 
 				shifted_left_pad_mask <= {PAD{1'b1}}; 
-			else if (row_complete_D1) 
+			else if (padrow_complete) 
 				shifted_left_pad_mask <= {PAD{1'b1}}; 
 			else if (valid)
 				shifted_left_pad_mask <= shifted_left_pad_mask << left_pad_shift; 
