@@ -25,46 +25,47 @@ Units:
 
 class PPAModeler():
     def __init__(self, data_format):
-        self.a_nbits = data_format["a_nint"] + data_format["a_nfrac"]
-        self.w_nbits = data_format["w_nint"] + data_format["w_nfrac"]
-
-        self.fixed_base_mult_area = 2.05E-07
-        self.fixed_base_sram_area = 1.62E-06
-        self.fixed_base_reg_area = 1.62E-06
-        self.fixed_base_mult_power = 5.79E-08
-        self.fixed_base_sram_power = 4.00E-07
-        self.fixed_base_reg_power = 4.00E-07
-        self.fixed_frequency_MHz = 810
-
-        self.prog_area = 3.3
-        self.prog_power = 0.891
-        self.prog_tops = 4
-        self.prog_tops_w = self.prog_tops / self.prog_power
-        self.dram_energy = 1.20E-10 * 10**9 # per byte read/write
-
-        self.num_fixed_layers = 0
-        self.fixed_layer_names = []
-        self.fixed_layer_num_ops = []
-        self.fixed_layer_num_input_act = []
-        self.fixed_layer_num_output_act = []
-        self.fixed_layer_num_weights = []
-        self.fixed_layer_num_nonzero = []
-        self.fixed_layer_mac_area = []
-        self.fixed_layer_sram_area = []
-        self.fixed_layer_reg_area = []
-        self.fixed_layer_mac_power = []
-        self.fixed_layer_sram_power = []
-        self.fixed_layer_reg_power = []
-        self.fixed_layer_cycles = []
-
-        self.num_prog_layers = 0
-        self.prog_layer_names = []
-        self.prog_layer_num_ops = []
-        self.prog_layer_num_input_act = []
-        self.prog_layer_num_output_act = []
-        self.prog_layer_num_weights = []
-        self.prog_layer_num_nonzero = []
-        self.prog_layer_latency = []
+			self.a_nbits = data_format["a_nint"] + data_format["a_nfrac"]
+			self.w_nbits = data_format["w_nint"] + data_format["w_nfrac"]
+			self.w_nfrac =  data_format["w_nfrac"]
+			
+			self.fixed_base_mult_area = 2.05E-07
+			self.fixed_base_sram_area = 1.62E-06
+			self.fixed_base_reg_area = 1.62E-06
+			self.fixed_base_mult_power = 5.79E-08
+			self.fixed_base_sram_power = 4.00E-07
+			self.fixed_base_reg_power = 4.00E-07
+			self.fixed_frequency_MHz = 810
+			
+			self.prog_area = 3.3
+			self.prog_power = 0.891
+			self.prog_tops = 4
+			self.prog_tops_w = self.prog_tops / self.prog_power
+			self.dram_energy = 1.20E-10 * 10**9 # per byte read/write
+			
+			self.num_fixed_layers = 0
+			self.fixed_layer_names = []
+			self.fixed_layer_num_ops = []
+			self.fixed_layer_num_input_act = []
+			self.fixed_layer_num_output_act = []
+			self.fixed_layer_num_weights = []
+			self.fixed_layer_num_nonzero = []
+			self.fixed_layer_mac_area = []
+			self.fixed_layer_sram_area = []
+			self.fixed_layer_reg_area = []
+			self.fixed_layer_mac_power = []
+			self.fixed_layer_sram_power = []
+			self.fixed_layer_reg_power = []
+			self.fixed_layer_cycles = []
+			
+			self.num_prog_layers = 0
+			self.prog_layer_names = []
+			self.prog_layer_num_ops = []
+			self.prog_layer_num_input_act = []
+			self.prog_layer_num_output_act = []
+			self.prog_layer_num_weights = []
+			self.prog_layer_num_nonzero = []
+			self.prog_layer_latency = []
 
     def __get_num_weights(self, layer):
         if layer.op_type == DEPTHWISE_SEPARABLE_CONV_2D:
@@ -75,12 +76,14 @@ class PPAModeler():
             return 0
 
     def __get_num_nonzero_weights(self, layer):
-        if layer.op_type == DEPTHWISE_SEPARABLE_CONV_2D:
-            return np.count_nonzero(layer.weights[0]) + np.count_nonzero(layer.weights[1])
-        elif layer.op_type in LAYER_TYPES_TRAINABLE:
-            return np.count_nonzero(layer.weights)
-        else:
-            return 0
+			if layer.op_type == DEPTHWISE_SEPARABLE_CONV_2D:
+				fixed_wts = np.round(layer.weights* (2**self.w_nfrac)).astype('int')
+				return np.count_nonzero(fixed_wts[0]) + np.count_nonzero(fixed_wts[1])
+			elif layer.op_type in LAYER_TYPES_TRAINABLE:
+				fixed_wts = np.round(layer.weights* (2**self.w_nfrac)).astype('int')
+				return np.count_nonzero(fixed_wts)
+			else:
+				return 0
 
     def __get_num_input_pixels(self, layer):
         if layer.op_type in LAYER_TYPES_2D or layer.op_type == FLATTEN:
@@ -108,7 +111,7 @@ class PPAModeler():
         # Model line-buffer
         if layer.op_type in LAYER_TYPES_2D:
             sram_size_x = layer.input_shapes[0][1] * layer.kernel_size[0]
-            sram_size_y = layer.kernel_size[1] + 1
+            sram_size_y = layer.kernel_size[1]
             num_sram_bits = sram_size_x * sram_size_y * self.a_nbits
             sram_area = num_sram_bits * self.fixed_base_sram_area
             sram_power = num_sram_bits * self.fixed_base_sram_power
@@ -174,6 +177,7 @@ class PPAModeler():
                 print_ppa("SRAM power: {:.3f}".format(self.fixed_layer_sram_power[i]))
                 print_ppa("Register power: {:.3f}".format(self.fixed_layer_reg_power[i]))
                 print_ppa("cycles: %d\n" % self.fixed_layer_cycles[i])
+								print_ppa("layer: %s, sparsity: %.2f" % (self.fixed_layer_names[i],1-(self.fixed_layer_num_nonzero[i]/(self.fixed_layer_num_weights[i]+0.000000000001))))
 
             for i in range(self.num_prog_layers):
                 print_ppa("Programmable layer: %s" % self.prog_layer_names[i])
