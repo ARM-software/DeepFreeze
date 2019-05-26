@@ -1,22 +1,22 @@
 module sram_array_k3
 #(
     parameter KER_SIZE = 3,
-    parameter DW = 32, // Data width (nbits)
-    parameter NW = 32, // Number of words
-    parameter AW = $clog2(NW)
+    parameter DW       = 32, // Data width (nbits)
+    parameter NW       = 32, // Number of words
+    parameter AW       = $clog2(NW)
 )
 (
     input logic clk,
     input logic rstn,
     input logic [AW-1:0] a, // same for read and write    
-    input logic [KER_SIZE:0] wen, // active high
-    input logic [KER_SIZE:0] ren, // active high
+    input logic [KER_SIZE-1:0] wen, // active high
+    input logic [KER_SIZE-1:0] ren, // active high
     input logic [DW-1:0] d,
-    output logic [KER_SIZE*DW-1:0] q
+    output logic [(KER_SIZE-1)*DW-1:0] q
 );
 
-logic [DW-1:0] q_wire [KER_SIZE:0];
-logic [KER_SIZE:0] write_en_D1;
+logic [DW-1:0] q_wire [KER_SIZE-1:0];
+logic [KER_SIZE-1:0] write_en_D1;
 
 always_ff @(posedge clk or negedge rstn) begin
     if(!rstn) begin
@@ -29,7 +29,7 @@ end
 
 genvar i;
 generate
-    for (i = 0; i < (KER_SIZE+1); i++) begin
+    for (i = 0; i < (KER_SIZE); i++) begin
         array #(
             .DW (DW),
             .NW (NW),
@@ -48,10 +48,9 @@ endgenerate
 // reorder rows
 always_comb begin
     case (1'b1)
-        write_en_D1[0] : q = {q_wire[3],q_wire[2],q_wire[1]};
-        write_en_D1[1] : q = {q_wire[0],q_wire[3],q_wire[2]};
-        write_en_D1[2] : q = {q_wire[1],q_wire[0],q_wire[3]};
-        write_en_D1[3] : q = {q_wire[2],q_wire[1],q_wire[0]};
+        write_en_D1[0] : q = {q_wire[2],q_wire[1]};
+        write_en_D1[1] : q = {q_wire[0],q_wire[2]};
+        write_en_D1[2] : q = {q_wire[1],q_wire[0]};
         default :        q = '0;
     endcase
 end
@@ -69,14 +68,14 @@ module sram_array_k5
     input logic clk,
     input logic rstn,
     input logic [AW-1:0] a, // same for read and write    
-    input logic [KER_SIZE:0] wen, // active high
-    input logic [KER_SIZE:0] ren, // active high
+    input logic [KER_SIZE-1:0] wen, // active high
+    input logic [KER_SIZE-1:0] ren, // active high
     input logic [DW-1:0] d,
-    output logic [KER_SIZE*DW-1:0] q
+    output logic [(KER_SIZE-1)*DW-1:0] q
 );
 
-logic [DW-1:0] q_wire [KER_SIZE:0];
-logic [KER_SIZE:0] write_en_D1; // delayed write enable because of 1 cycle delay of sram
+logic [DW-1:0] q_wire [KER_SIZE-1:0];
+logic [KER_SIZE-1:0] write_en_D1; // delayed write enable because of 1 cycle delay of sram
 
 always_ff @(posedge clk or negedge rstn) begin
     if(!rstn) begin
@@ -89,7 +88,7 @@ end
 
 genvar i;
 generate
-    for (i = 0; i < (KER_SIZE+1); i++) begin
+    for (i = 0; i < (KER_SIZE); i++) begin
         array #(
             .DW (DW),
             .NW (NW),
@@ -108,12 +107,11 @@ endgenerate
 // reorder rows
 always_comb begin
     case (1'b1)
-        write_en_D1[0] : q = {q_wire[5],q_wire[4],q_wire[3],q_wire[2],q_wire[1]};
-        write_en_D1[1] : q = {q_wire[0],q_wire[5],q_wire[4],q_wire[3],q_wire[2]};
-        write_en_D1[2] : q = {q_wire[1],q_wire[0],q_wire[5],q_wire[4],q_wire[3]};
-        write_en_D1[3] : q = {q_wire[2],q_wire[1],q_wire[0],q_wire[5],q_wire[4]};
-        write_en_D1[4] : q = {q_wire[3],q_wire[2],q_wire[1],q_wire[0],q_wire[5]};
-        write_en_D1[5] : q = {q_wire[4],q_wire[3],q_wire[2],q_wire[1],q_wire[0]};
+        write_en_D1[0] : q = {q_wire[4],q_wire[3],q_wire[2],q_wire[1]};
+        write_en_D1[1] : q = {q_wire[0],q_wire[4],q_wire[3],q_wire[2]};
+        write_en_D1[2] : q = {q_wire[1],q_wire[0],q_wire[4],q_wire[3]};
+        write_en_D1[3] : q = {q_wire[2],q_wire[1],q_wire[0],q_wire[4]};
+        write_en_D1[4] : q = {q_wire[3],q_wire[2],q_wire[1],q_wire[0]};
         default :        q = '0;
     endcase
 end
@@ -131,14 +129,14 @@ module sram_array_k2
     input logic clk,
     input logic rstn,
     input logic [AW-1:0] a, // same for read and write
-    input logic [KER_SIZE:0] wen, // active high
-    input logic [KER_SIZE:0] ren, // active high
+    input logic [KER_SIZE-1:0] wen, // active high
+    input logic [KER_SIZE-1:0] ren, // active high
     input logic [DW-1:0] d,
-    output logic [KER_SIZE*DW-1:0] q
+    output logic [(KER_SIZE-1)*DW-1:0] q
 );
 
-logic [DW-1:0] q_wire [KER_SIZE:0];
-logic [KER_SIZE:0] write_en_D1;
+logic [DW-1:0] q_wire [KER_SIZE-1:0];
+logic [KER_SIZE-1:0] write_en_D1;
 
 always_ff @(posedge clk or negedge rstn) begin
     if(!rstn) begin
@@ -151,7 +149,7 @@ end
 
 genvar i;
 generate
-    for (i = 0; i < (KER_SIZE+1); i++) begin
+    for (i = 0; i < (KER_SIZE); i++) begin
         array #(
             .DW (DW),
             .NW (NW),
@@ -171,9 +169,8 @@ endgenerate
 always_comb
 begin
     case (1'b1)
-        write_en_D1[0] : q = {q_wire[2],q_wire[1]};
-        write_en_D1[1] : q = {q_wire[0],q_wire[2]};
-        write_en_D1[2] : q = {q_wire[1],q_wire[0]};
+        write_en_D1[0] : q = {q_wire[1]};
+        write_en_D1[1] : q = {q_wire[0]};
         default :        q = '0;
     endcase
 end

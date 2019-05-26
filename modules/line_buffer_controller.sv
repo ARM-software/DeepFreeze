@@ -1,8 +1,8 @@
 module line_buffer_controller
 #(
-    parameter KER_SIZE = 3,
+    parameter KER_SIZE    = 3,
     parameter INPUT_X_DIM = 3,
-    parameter PAD = 1
+    parameter PAD         = 1
 )
 (
     input logic clk,
@@ -51,25 +51,25 @@ assign padrow_complete = row_complete_D1;
 // initialize counters
 always_ff @(posedge clk or negedge rstn) begin
     if (!rstn) begin
-        col_ptr 			 <= PAD;//Left padding
-        init_col_ptr 		 <= PAD;//Left padding
-        global_col_ptr 		 <='0;
+        col_ptr 			      <= PAD;//Left padding
+        init_col_ptr 		    <= PAD;//Left padding
+        global_col_ptr 		  <='0;
     end
     else if (padrow_complete) begin
-        col_ptr 				<= PAD; //Left padding
-        init_col_ptr 			<= PAD;//Left padding
+        col_ptr 				    <= PAD; //Left padding
+        init_col_ptr 			  <= PAD;//Left padding
         global_col_ptr 			<= '0;
     end
     else begin
-        col_ptr 				<= col_ptr_nxt;
-        init_col_ptr 			<= init_col_ptr_nxt;
+        col_ptr 				    <= col_ptr_nxt;
+        init_col_ptr 			  <= init_col_ptr_nxt;
         global_col_ptr 			<= global_col_ptr_nxt;
     end
 end
 
 
 // Increment counters based on conditions
-assign col_ptr_nxt 		  = valid ? (col_ptr==KER_SIZE-1 ? '0 : col_ptr + 1'd1) : col_ptr;
+assign col_ptr_nxt 		  	= valid ? (col_ptr==KER_SIZE-1 ? '0 : col_ptr + 1'd1) : col_ptr;
 assign global_col_ptr_nxt = padrow_complete ? 'd0 : valid ?  global_col_ptr + 1'd1: global_col_ptr;
 assign init_col_ptr_nxt   = valid && init_col_ptr<KER_SIZE-1 ? init_col_ptr + 1'd1 :padrow_complete==1'b1 ? PAD : init_col_ptr;
 

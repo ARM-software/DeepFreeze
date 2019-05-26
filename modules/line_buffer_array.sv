@@ -2,8 +2,8 @@ module line_buffer_array_k5
 #(
     parameter KER_SIZE = 5,
     parameter BITWIDTH = 8,
-    parameter AW = 8,
-    parameter PAD = 1
+    parameter AW       = 8,
+    parameter PAD      = 1
 )
 (
     input logic clk,
