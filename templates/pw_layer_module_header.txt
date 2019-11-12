@@ -1,0 +1,20 @@
+module MODULE_NAME (
+    input logic clk,
+    input logic rstn,
+    input logic valid,
+    input logic [INPUT_ACT_NBITS-1:0] input_act,
+    output logic [OUTPUT_ACT_NBITS-1:0] output_act,
+    output logic ready
+);
+//NUM_INPUT_FMAPS
+logic [INPUT_ACT_NBITS-1:0] input_act_ff ;
+always_ff @(posedge clk or negedge rstn) begin
+    if (rstn == 0) begin
+        input_act_ff <= '0;
+        ready <= '0;
+    end
+    else begin
+        input_act_ff <= input_act;
+        ready <= valid;
+    end
+end
