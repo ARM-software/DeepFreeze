@@ -13,7 +13,7 @@ module buffer_main
     input logic rstn,
     input logic valid,
     input logic [NFMAPS*BITWIDTH-1:0] D,
-    output logic [NFMAPS*KER_SIZE*KER_SIZE*BITWIDTH-1:0] Q,
+    output logic [KER_SIZE*KER_SIZE*BITWIDTH-1:0] Q [NFMAPS-1:0],
     output logic ready
 );
 
@@ -140,6 +140,24 @@ begin
         .q 		(sram_km1_read_data	)
     );
 		assign sram_read_data_wire = {incoming_px_D1,sram_km1_read_data};
+end        
+else if(KER_SIZE == 7)
+begin
+    sram_array_k7 #(
+         .KER_SIZE (KER_SIZE),
+         .DW 			 (DW			),
+         .NW 			 (NW			),
+         .AW 			 (AW			)
+    ) sram_array_k7_inst (
+        .clk 	(clk								),
+        .rstn (rstn								),
+        .a 		(address_wire				),
+        .wen 	(write_en_wire			),
+        .ren 	(read_en_wire				),
+        .d 		(D_reg							),
+        .q 		(sram_km1_read_data	)
+    );
+		assign sram_read_data_wire = {incoming_px_D1,sram_km1_read_data};
 end 
 endgenerate
 
@@ -232,10 +250,27 @@ generate
                 .pixel_out 		          (pixel_out_fmap_wise [i])
             );
         end
+        else if (KER_SIZE == 7) begin
+            line_buffer_array_k7 #      (
+                .KER_SIZE               (KER_SIZE),
+                .PAD                    (PAD),
+                .BITWIDTH               (BITWIDTH),
+                .AW                     (AW)
+            ) line_buffer_array_k7_inst (
+                .clk 			              (clk),
+                .rstn 			            (rstn),
+                .pixel_in 		          (pixel_in_fmap_wise [i]),
+                .col_ptr 		            (col_ptr_wire),
+                .init_col_ptr 	        (init_col_ptr_wire),
+                .left_pad_mask 	        (left_pad_mask),
+                .right_pad_mask         (right_pad_mask),
+                .pixel_out 		          (pixel_out_fmap_wise [i])
+            );
+        end
     end
 
     for (i = 0; i < NFMAPS; i++) begin
-        assign Q[(i+1)*KER_SIZE*KER_SIZE*BITWIDTH-1:(i*KER_SIZE*KER_SIZE*BITWIDTH)] = pixel_out_fmap_wise[i];
+        assign Q[i] = pixel_out_fmap_wise[i];
     end
 
 endgenerate
