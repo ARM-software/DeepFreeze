@@ -10,6 +10,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import numpy as np
 import tensorflow as tf
 import json
 
@@ -35,9 +36,16 @@ TANH = None
 ACTIVATION_FUNCTIONS = [RELU, RELU6, SOFTMAX, SIGMOID, TANH]
 
 
-def get_tf_graph(meta_graph_filepath):
+def get_tf_graph_from_meta(meta_graph_filepath):
 	tf.train.import_meta_graph(meta_graph_filepath)
 	return tf.get_default_graph()
+
+def get_tf_graph_from_pb(frozen_model_filepath):
+    with tf.io.gfile.GFile(frozen_model_filepath, 'rb') as f:
+        graph_def = tf.compat.v1.GraphDef()
+        graph_def.ParseFromString(f.read())
+    tf.compat.v1.import_graph_def(graph_def, name='')
+    return tf.compat.v1.get_default_graph()
 
 def get_endpoints(endpoints_filepath, graph):
 	with open(endpoints_filepath, "r") as f:
@@ -66,7 +74,8 @@ def get_tensor_shape(tensor):
 def get_variable_from_graph(graph, ckpt, variable):
     """Extract the value of a variable from a checkpoint"""
     with tf.Session(graph=graph) as sess:
-        tf.train.Saver().restore(sess, ckpt)
+        if ckpt:
+        	tf.train.Saver().restore(sess, ckpt)
         return sess.run(variable)
 
 
@@ -312,7 +321,7 @@ class Layer():
 									bias = op.inputs[1]
 			
 			if bias == None:
-					raise Exception("No bias found in layer: %s" % self.name)
+					return np.zeros((self.output_shape[-1]))
 			else:
 					return get_variable_from_graph(graph, ckpt, bias)
 	
@@ -362,11 +371,16 @@ class Layer():
 	
 	
 def parse_tf_graph(
-    model_name, endpoints_filepath, meta_filepath, checkpoint_filepath,
+    model_name, endpoints_filepath, meta_filepath, checkpoint_filepath, pb_filepath,
     input_layer_name=None, output_layer_name=None
 ):
 	"""Parses a Tensorflow model into an intermediate representation"""
-	tf_graph = get_tf_graph(meta_filepath)
+	if pb_filepath is None:
+		assert(meta_filepath and checkpoint_filepath)
+		tf_graph = get_tf_graph_from_meta(meta_filepath)
+	else:
+		tf_graph = get_tf_graph_from_pb(pb_filepath)
+
 	endpoints = get_endpoints(endpoints_filepath, tf_graph)
 	
 	graph = Graph(model_name)

@@ -236,8 +236,9 @@ class PPAModeler():
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
 	parser.add_argument("--model_name", type=str, required=True)
-	parser.add_argument("--meta_filepath", type=str, required=True)
-	parser.add_argument("--checkpoint_filepath", type=str, required=True)
+	parser.add_argument("--meta_filepath", type=str, default=None)
+	parser.add_argument("--checkpoint_filepath", type=str, default=None)
+	parser.add_argument("--pb_filepath", type=str, default=None)
 	parser.add_argument("--endpoints_filepath", type=str, required=True)
 	parser.add_argument("--data_format_filepath", type=str, required=True)
 	parser.add_argument("--num_fixed_layers", type=int, default=None)
@@ -245,7 +246,7 @@ if __name__ == "__main__":
 	FLAGS = parser.parse_args()
 	
 	graph = parse_tf_graph(FLAGS.model_name, FLAGS.endpoints_filepath,
-												FLAGS.meta_filepath, FLAGS.checkpoint_filepath)
+			FLAGS.meta_filepath, FLAGS.checkpoint_filepath, FLAGS.pb_filepath)
 	with open(FLAGS.data_format_filepath, "r") as f:
 			data_format = json.load(f)
 	
